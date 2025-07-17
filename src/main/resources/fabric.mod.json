@@ -1,0 +1,44 @@
+{
+	"schemaVersion": 1,
+	"id": "slowcraft",
+	"version": "${version}",
+	"name": "Slowcraft",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Developer : Nibby"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/slowcraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"io.github.nibbyy.slowcraft.Slowcraft"
+		],
+		"client": [
+			"io.github.nibbyy.slowcraft.SlowcraftClient"
+		],
+		"fabric-datagen": [
+			"io.github.nibbyy.slowcraft.SlowcraftDataGenerator"
+		]
+	},
+	"mixins": [
+		"slowcraft.mixins.json",
+		{
+			"config": "slowcraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
