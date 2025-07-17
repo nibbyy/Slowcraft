@@ -40,6 +40,6 @@ public class SlowMaterial implements ToolMaterial {
 
     @Override
     public TagKey<Block> getInverseTag() {
-        return BlockTags.INCORRECT_FOR_STONE_TOOL;
+        return BlockTags.INCORRECT_FOR_WOODEN_TOOL;
     }
 }
