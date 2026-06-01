@@ -12,26 +12,30 @@ import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SlowTool extends Item {
-	private final SlowToolStack itemOutput;
+	private final List<SlowToolStack> itemOutputs;
 	private final SoundEvent usageSound;
 	private final SoundEvent finishSound;
-	private final SlowToolStack returnItem;
 
 	public SlowTool(SlowToolConfig config, Item.Properties properties) {
-		super(properties.durability(config.itemUses));
+		super(properties
+				.durability(config.useTime * 4) // Set the durability to 4 * .useTime, because we increment every 5 ticks (4 times per second at 20tps)
+				.component(ModComponents.SLOW_TOOL_TOOLTIP, new SlowTooltipComponent(config.useTime)) // Adds our tooltip to the item
+		);
 
-		this.itemOutput = config.itemOutput;
+		this.itemOutputs = List.copyOf(config.itemOutputs);
 		this.usageSound = config.usageSound;
 		this.finishSound = config.finishSound;
-		this.returnItem = config.returnItem;
 
-		if (config.itemUses <= 0) {
-			throw new IllegalArgumentException("SlowTool itemUses must be greater than 0");
+		if (config.useTime <= 0) {
+			throw new IllegalArgumentException("SlowTool useTime must be greater than 0");
 		}
 
-		if (config.itemOutput.isEmpty()) {
-			throw new IllegalArgumentException("SlowTool itemOutput is required");
+		if (config.itemOutputs.isEmpty()) {
+			throw new IllegalArgumentException("SlowTool requires at least one itemOutput");
 		}
 	}
 
@@ -41,11 +45,10 @@ public class SlowTool extends Item {
 
 	// Config makes constructing the item simpler
 	public static class SlowToolConfig {
-		private SlowToolStack itemOutput = SlowToolStack.EMPTY;
-		private int itemUses;
+		private final List<SlowToolStack> itemOutputs = new ArrayList<>();
+		private int useTime;
 		private SoundEvent usageSound = SoundEvents.BRUSH_GENERIC;
 		private SoundEvent finishSound = SoundEvents.BUBBLE_POP;
-		private SlowToolStack returnItem = SlowToolStack.EMPTY;
 
 		// If only one field is provided, only give one item on finish
 		public SlowToolConfig itemOutput(Item itemOutput) {
@@ -54,12 +57,12 @@ public class SlowTool extends Item {
 
 		// If two fields provided, define amount to give
 		public SlowToolConfig itemOutput(Item itemOutput, int count) {
-			this.itemOutput = new SlowToolStack(itemOutput, count);
+			this.itemOutputs.add(new SlowToolStack(itemOutput, count));
 			return this;
 		}
 
-		public SlowToolConfig itemUses(int itemUses) {
-			this.itemUses = itemUses;
+		public SlowToolConfig useTime(int seconds) {
+			this.useTime = seconds;
 			return this;
 		}
 
@@ -70,11 +73,6 @@ public class SlowTool extends Item {
 
 		public SlowToolConfig finishSound(SoundEvent finishSound) {
 			this.finishSound = finishSound;
-			return this;
-		}
-
-		public SlowToolConfig returnItem(Item returnItem, int count) {
-			this.returnItem = new SlowToolStack(returnItem, count);
 			return this;
 		}
 	}
@@ -121,37 +119,43 @@ public class SlowTool extends Item {
 	@Override
 	public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remainingUseTicks) {
 		int currentDamage = stack.getDamageValue();
-		int useTime = user.getTicksUsingItem();
+		int timeUsing = user.getTicksUsingItem();
 
-		// Play usageSound in intervals
-		if (useTime % 8 == 0 || useTime == 1) {
-			playCraftingSound(user);
+		boolean isProgressTick = timeUsing > 1 && timeUsing % 5 == 0;
+		boolean isFinishingTick = isProgressTick && currentDamage <= 1;
+
+		if (timeUsing % 8 == 0 || timeUsing == 1) {
+			playCraftingSound(user, usageSound);
 		}
 
-		if (!level.isClientSide() && useTime > 1 && useTime % 5 == 0) {
+		if (level.isClientSide() && isFinishingTick) {
+			playCraftingSound(user, finishSound);
+		}
+
+		if (!level.isClientSide() && isProgressTick) {
 			if (currentDamage > 1) {
 				// Crafting incrementation
 				stack.setDamageValue(currentDamage - 1);
 			} else {
 				// Finished crafting
-				ItemStack output = itemOutput.createStack();
 				InteractionHand usedHand = user.getUsedItemHand();
 
 				if (user instanceof Player player) {
-					player.setItemInHand(usedHand, returnItem.createStack()); // Deletes the SlowTool, or replaces it with returnItem
-					player.getInventory().placeItemBackInInventory(output); // Adds the itemOutput to inventory
+					player.setItemInHand(usedHand, ItemStack.EMPTY);
+					for (SlowToolStack output : itemOutputs) {
+						player.getInventory().placeItemBackInInventory(output.createStack());
+					}
 				}
 
-				user.playSound(finishSound, 0.8f, 0.8f);
 				user.stopUsingItem();
 			}
 		}
 	}
 
 	// Called by onUseTick
-	protected void playCraftingSound(LivingEntity user) {
+	protected void playCraftingSound(LivingEntity user, SoundEvent sound) {
 		user.playSound(
-				usageSound,
+				sound,
 				0.25F + 0.25F * user.getRandom().nextInt(2),
 				(user.getRandom().nextFloat() - user.getRandom().nextFloat()) * 0.25f + 1.75f
 		);
