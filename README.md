@@ -1,5 +1,9 @@
-Slowcraft is an API for creating 'Progressive Crafting' items, inspired by the system of the same name from the Better Than Wolves mod.
+# Slowcraft
 
-Thanks to Ivangeevo for assistance on item logic.
+## Setup
 
-Credit to Flowerchild and the BTW 3.0 CE team for any art assets used (including the icon).
+For setup instructions, please see the [Fabric Documentation page](https://docs.fabricmc.net/develop/getting-started/creating-a-project#setting-up) related to the IDE that you are using.
+
+## License
+
+This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.

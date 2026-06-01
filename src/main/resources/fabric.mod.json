@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "slowcraft",
+	"version": "${version}",
+	"name": "Slowcraft",
+	"description": "An API for creating BTW-style Progressive Crafting items.",
+	"authors": [
+		"nibbyy"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/slowcraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"nibbyy.slowcraft.Slowcraft"
+		],
+		"client": [
+			"nibbyy.slowcraft.client.SlowcraftClient"
+		],
+		"fabric-datagen": [
+			"nibbyy.slowcraft.client.SlowcraftDataGenerator"
+		]
+	},
+	"mixins": [
+		"slowcraft.mixins.json",
+		{
+			"config": "slowcraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
