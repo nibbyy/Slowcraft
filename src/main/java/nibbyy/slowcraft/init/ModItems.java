@@ -30,8 +30,8 @@ public class ModItems {
 			"rubbing_sticks",
 			properties -> new SlowTool(
 					SlowTool.config()
-							.itemOutput(Items.DIRT, 1)
-							.useTime(10),
+							.itemOutput(Items.IRON_INGOT, 8)
+							.useTime(30),
 					properties
 			),
 			new Item.Properties()

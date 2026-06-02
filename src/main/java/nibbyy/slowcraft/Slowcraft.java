@@ -5,6 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.minecraft.core.component.DataComponents;
 import nibbyy.slowcraft.init.ModComponents;
+import nibbyy.slowcraft.init.ModItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
