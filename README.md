@@ -1,4 +1,4 @@
-#Slowcraft
+# Slowcraft
 
 **Slowcraft is a library for creating low-tech, progressive crafting items called SlowTools.**
 
