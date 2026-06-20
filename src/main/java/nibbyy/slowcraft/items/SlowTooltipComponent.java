@@ -1,4 +1,4 @@
-package nibbyy.slowcraft.init;
+package nibbyy.slowcraft.items;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.ChatFormatting;

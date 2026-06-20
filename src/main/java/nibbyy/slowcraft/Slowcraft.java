@@ -4,8 +4,11 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.minecraft.core.component.DataComponents;
-import nibbyy.slowcraft.init.ModComponents;
-import nibbyy.slowcraft.init.ModItems;
+import nibbyy.slowcraft.init.SlowcraftCommands;
+import nibbyy.slowcraft.items.SlowComponents;
+import nibbyy.slowcraft.items.SlowItems;
+import nibbyy.slowcraft.recipes.SlowRecipeSerializer;
+import nibbyy.slowcraft.registry.SlowToolDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +22,20 @@ public class Slowcraft implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-
-		ModComponents.initialize();
+		SlowToolDefinitions.initialize();
+		SlowComponents.initialize();
+		SlowItems.initialize();
 
 		ItemComponentTooltipProviderRegistry.addAfter(
 				DataComponents.DAMAGE,
-				ModComponents.SLOW_TOOL_TOOLTIP
+				SlowComponents.SLOW_TOOL_TOOLTIP
+		);
+		ItemComponentTooltipProviderRegistry.addAfter(
+				SlowComponents.SLOW_TOOL_TOOLTIP,
+				SlowComponents.SLOW_TOOL
 		);
 
-		LOGGER.info("[Slowcraft] Loaded!");
-		//ModItems.initialize();
+		SlowRecipeSerializer.initialize();
+		SlowcraftCommands.initialize();
 	}
 }

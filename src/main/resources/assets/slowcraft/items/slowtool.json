@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "slowcraft:item/slowtool_overlay"
+  }
+}

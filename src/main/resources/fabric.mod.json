@@ -3,15 +3,16 @@
 	"id": "slowcraft",
 	"version": "${version}",
 	"name": "Slowcraft",
-	"description": "An API for creating BTW-style Progressive Crafting items.",
+	"description": "An API for creating low-tech Progressive Crafting items.",
 	"authors": [
 		"nibbyy"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://modrinth.com/mod/slowcraft",
+		"sources": "https://github.com/nibbyy/Slowcraft",
+		"issues": "https://github.com/nibbyy/Slowcraft/issues"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/slowcraft/icon.png",
 	"environment": "*",
 	"entrypoints": {
@@ -23,6 +24,9 @@
 		],
 		"fabric-datagen": [
 			"nibbyy.slowcraft.client.SlowcraftDataGenerator"
+		],
+		"jei_mod_plugin": [
+			"nibbyy.slowcraft.client.compat.jei.JEISlowcraftPlugin"
 		]
 	},
 	"mixins": [

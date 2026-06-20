@@ -1,5 +1,6 @@
-package nibbyy.slowcraft.init;
+package nibbyy.slowcraft.items;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -11,24 +12,34 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SlowTool extends Item {
+	private final int useTime;
 	private final List<SlowToolStack> itemOutputs;
 	private final SoundEvent usageSound;
 	private final SoundEvent finishSound;
+	private final boolean excludeFromJEI;
+	private final boolean addToCreative;
 
 	public SlowTool(SlowToolConfig config, Item.Properties properties) {
+		final int maxDurability = config.useTime * 4;
+
 		super(properties
-				.durability(config.useTime * 4) // Set the durability to 4 * .useTime, because we increment every 5 ticks (4 times per second at 20tps)
-				.component(ModComponents.SLOW_TOOL_TOOLTIP, new SlowTooltipComponent(config.useTime)) // Adds our tooltip to the item
+				.durability(maxDurability) // Set the durability to 4 * .useTime, because we increment every 5 ticks (4 times per second at 20tps)
+				.component(SlowComponents.SLOW_TOOL_TOOLTIP, new SlowTooltipComponent(config.useTime)) // Adds our tooltip to the item
+				.component(DataComponents.DAMAGE, maxDurability) // Apply damage to the item (so its 0 durability)
 		);
 
+		this.useTime = config.useTime;
 		this.itemOutputs = List.copyOf(config.itemOutputs);
 		this.usageSound = config.usageSound;
 		this.finishSound = config.finishSound;
+		this.excludeFromJEI = config.excludeFromJEI;
+		this.addToCreative = config.addToCreative;
 
 		if (config.useTime <= 0) {
 			throw new IllegalArgumentException("SlowTool useTime must be greater than 0");
@@ -37,10 +48,40 @@ public class SlowTool extends Item {
 		if (config.itemOutputs.isEmpty()) {
 			throw new IllegalArgumentException("SlowTool requires at least one itemOutput");
 		}
+
+		if (config.itemOutputs.size() > 4) {
+			throw new IllegalArgumentException("SlowTool cannot have more than 4 itemOutput's");
+		}
 	}
 
 	public static SlowToolConfig config() {
 		return new SlowToolConfig();
+	}
+
+	public int getUseTime() {
+		return useTime;
+	}
+
+	public List<ItemStack> getOutputStacks() {
+		List<ItemStack> stacks = new ArrayList<>();
+
+		for (SlowToolStack output : itemOutputs) {
+			ItemStack stack = output.createStack();
+
+			if (!stack.isEmpty()) {
+				stacks.add(stack);
+			}
+		}
+
+		return List.copyOf(stacks);
+	}
+
+	public boolean isExcludeFromJEI() {
+		return excludeFromJEI;
+	}
+
+	public boolean shouldAddToCreative() {
+		return addToCreative;
 	}
 
 	// Config makes constructing the item simpler
@@ -49,6 +90,8 @@ public class SlowTool extends Item {
 		private int useTime;
 		private SoundEvent usageSound = SoundEvents.BRUSH_GENERIC;
 		private SoundEvent finishSound = SoundEvents.BUBBLE_POP;
+		private boolean excludeFromJEI = false;
+		private boolean addToCreative = false;
 
 		// If only one field is provided, only give one item on finish
 		public SlowToolConfig itemOutput(Item itemOutput) {
@@ -75,13 +118,21 @@ public class SlowTool extends Item {
 			this.finishSound = finishSound;
 			return this;
 		}
+
+		public SlowToolConfig excludeFromJEI() {
+			this.excludeFromJEI = true;
+			return this;
+		}
+
+		public SlowToolConfig addToCreative() {
+			this.addToCreative = true;
+			return this;
+		}
 	}
 
 	// Registers ItemStacks on craft finish to avoid 'NullPointerException: Components not bound yet'
 	// Registering the itemOutput as a direct ItemStack caused the above error
 	private record SlowToolStack(Item item, int count) {
-		private static final SlowToolStack EMPTY = new SlowToolStack(Items.AIR, 0);
-
 		private boolean isEmpty() {
 			return this.item == Items.AIR || this.count <= 0;
 		}
@@ -91,33 +142,27 @@ public class SlowTool extends Item {
 		}
 	}
 
-	// Sets its durability to 0 after being crafted
 	@Override
-	public void onCraftedPostProcess(ItemStack stack, Level level) {
-		stack.setDamageValue(stack.getMaxDamage());
-	}
-
-	@Override
-	public InteractionResult use(Level level, Player player, InteractionHand hand) {
+	public @NonNull InteractionResult use(@NonNull Level level, Player player, @NonNull InteractionHand hand) {
 		player.startUsingItem(hand);
 		return InteractionResult.CONSUME;
 	}
 
 	// Sets the use animation to the Brush animation
 	@Override
-	public ItemUseAnimation getUseAnimation(ItemStack stack) {
+	public @NonNull ItemUseAnimation getUseAnimation(@NonNull ItemStack stack) {
 		return ItemUseAnimation.BRUSH;
 	}
 
 	// Allows holding right click for 60 minutes
 	@Override
-	public int getUseDuration(ItemStack stack, LivingEntity user) {
+	public int getUseDuration(@NonNull ItemStack stack, @NonNull LivingEntity user) {
 		return 72000;
 	}
 
 	// Item use logic
 	@Override
-	public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remainingUseTicks) {
+	public void onUseTick(@NonNull Level level, LivingEntity user, ItemStack stack, int remainingUseTicks) {
 		int currentDamage = stack.getDamageValue();
 		int timeUsing = user.getTicksUsingItem();
 

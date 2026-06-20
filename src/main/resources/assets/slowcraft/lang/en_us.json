@@ -1,4 +1,15 @@
 {
   "item.slowcraft.slow_tool.crafting_time": "Crafting Time: %s seconds",
-  "item.slowcraft.rubbing_sticks": "Rubbing Sticks"
+  "slowcraft.category.progressive_crafting": "Progressive Crafting",
+  "jei.slowcraft.progressive_crafting.time": "%ss",
+  "itemGroup.slowcraft.slowtools": "Slowtools",
+
+  "jei.slowcraft.info.slowtool.1": "Slowtools are progressive crafting items. Hold the use (default right click) button to work on them. Progress is preserved if you stop early.",
+  "jei.slowcraft.info.slowtool.2": "When crafting finishes, the Slowtool is consumed and its outputs are placed into your inventory.",
+
+  "commands.slowcraft.list.data_driven": "Data-driven Slowtools (%s):",
+  "commands.slowcraft.list.java_driven": "Java-driven Slowtools (%s):",
+  "commands.slowcraft.give.success": "Gave %s (%s) to %s.",
+
+  "item.slowcraft.slowtool": "SlowTool"
 }
